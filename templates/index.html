@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}首页 - 数据处理与可视化中心{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="jumbotron bg-primary text-white rounded-3 p-5 mb-4">
+                <h1 class="display-4"><i class="fas fa-database"></i> 数据处理与可视化中心</h1>
+                <p class="lead">一站式数据处理与可视化分析平台，支持多源数据接入、自动化处理和交互式可视化展示。</p>
+                <hr class="my-4 bg-light">
+                <p>通过集成化的工具和服务，帮助您更好地理解数据、发现规律并做出数据驱动的决策。</p>
+                <a class="btn btn-light btn-lg" href="/data_sources" role="button"><i class="fas fa-file-upload"></i> 开始使用</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-file-upload text-primary"></i> 数据源管理</h5>
+                    <p class="card-text">支持多种数据源接入，包括CSV文件、数据库连接等。提供数据预览和基本统计信息，帮助您快速了解数据结构。</p>
+                    <a href="/data_sources" class="btn btn-outline-primary">前往管理</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-cogs text-success"></i> 数据处理</h5>
+                    <p class="card-text">提供强大的数据处理功能，包括过滤、排序、分组聚合等操作。支持自定义处理流程，满足各种数据分析需求。</p>
+                    <a href="/data_processing" class="btn btn-outline-success">开始处理</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-chart-bar text-warning"></i> 数据可视化</h5>
+                    <p class="card-text">支持多种图表类型，包括柱状图、折线图、饼图等。提供直观的配置界面，轻松创建专业的数据可视化图表。</p>
+                    <a href="/visualization" class="btn btn-outline-warning">创建图表</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-tachometer-alt text-danger"></i> 仪表盘</h5>
+                    <p class="card-text">拖拽式仪表盘构建工具，支持多种图表组件和布局选项。可保存和分享您的仪表盘，实现数据监控和展示一体化。</p>
+                    <a href="/dashboard" class="btn btn-outline-danger">构建仪表盘</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-tasks text-info"></i> 任务调度</h5>
+                    <p class="card-text">完善的任务调度与监控模块，支持定时任务配置、执行状态监控和历史记录查询，确保数据处理流程的自动化运行。</p>
+                    <a href="/scheduling" class="btn btn-outline-info">任务管理</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> 系统特性</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-exchange-alt text-primary"></i> 多源数据接入</h6>
+                            <p>支持CSV、Excel、数据库等多种数据源，实现统一的数据接入和管理。</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-robot text-success"></i> 自动化处理</h6>
+                            <p>ETL自动化流程，减少人工干预，提高数据处理效率和准确性。</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-sync-alt text-warning"></i> 任务调度</h6>
+                            <p>灵活的任务调度机制，支持定时执行和依赖管理。</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-chart-line text-danger"></i> 交互式可视化</h6>
+                            <p>丰富的图表类型和交互功能，支持拖拽式仪表盘构建。</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-shield-alt text-info"></i> 数据安全</h6>
+                            <p>完善的数据权限管理和访问控制，保障数据安全。</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-bolt text-primary"></i> 高性能处理</h6>
+                            <p>基于pandas等高性能数据处理库，支持大规模数据处理。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
