@@ -2,50 +2,100 @@
 
 {% block title %}仪表盘 - 数据处理与可视化中心{% endblock %}
 
+{% block head %}
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .dashboard-item {
+        background-color: #ffffff;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        height: 300px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .dashboard-item-header {
+        padding: 1rem;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .dashboard-item-title {
+        font-weight: 600;
+        margin: 0;
+        font-size: 1.1rem;
+    }
+    
+    .dashboard-item-body {
+        flex: 1;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .dashboard-placeholder {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 3rem;
+        background-color: #f8f9fa;
+        border: 1px dashed #dee2e6;
+        border-radius: 0.375rem;
+    }
+    
+    .chart-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <h2 class="my-3">数据仪表盘</h2>
-        </div>
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-tachometer-alt"></i> 仪表盘</h2>
+        <p class="text-muted">允许用户通过拖拽方式自由组合图表，构建个性化数据看板，并支持图表联动、数据下钻等交互操作</p>
     </div>
-    
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <div class="btn-group" role="group">
-                <button id="addChartBtn" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> 添加图表
-                </button>
-                <button id="saveDashboardBtn" class="btn btn-success">
-                    <i class="fas fa-save"></i> 保存仪表盘
-                </button>
-                <button id="clearDashboardBtn" class="btn btn-danger">
-                    <i class="fas fa-trash"></i> 清空
-                </button>
-            </div>
-        </div>
-        <div class="col-md-6 text-end">
-            <div class="btn-group" role="group">
-                <button id="editModeBtn" class="btn btn-outline-secondary active">
-                    <i class="fas fa-edit"></i> 编辑模式
-                </button>
-                <button id="viewModeBtn" class="btn btn-outline-secondary">
-                    <i class="fas fa-eye"></i> 查看模式
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row">
-        <div class="col-12">
-            <div id="dashboardContainer" class="dashboard-grid">
-                <!-- 仪表盘内容将通过JavaScript动态添加 -->
-                <div class="dashboard-placeholder">
-                    <p class="text-muted text-center my-5">
-                        <i class="fas fa-plus-circle fa-3x mb-3"></i><br>
-                        点击"添加图表"按钮开始创建您的仪表盘
-                    </p>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+                    <button id="addChartBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> 添加图表
+                    </button>
+                    <button id="saveDashboardBtn" class="btn btn-success">
+                        <i class="fas fa-save"></i> 保存仪表盘
+                    </button>
+                    <button id="clearDashboardBtn" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> 清空
+                    </button>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div id="dashboardContainer" class="dashboard-grid">
+            <!-- 仪表盘内容将通过JavaScript动态添加 -->
+            <div class="dashboard-placeholder">
+                <i class="fas fa-plus-circle fa-3x text-muted mb-3"></i>
+                <h4>欢迎使用数据仪表盘</h4>
+                <p class="text-muted">点击"添加图表"按钮开始创建您的个性化数据看板</p>
             </div>
         </div>
     </div>
@@ -56,50 +106,42 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">图表配置</h5>
+                <h5 class="modal-title"><i class="fas fa-cog"></i> 图表配置</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="chartConfigForm">
                     <input type="hidden" id="chartId">
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">数据源</label>
-                                <select class="form-select" id="chartDataSource">
-                                    <option value="">请选择数据源</option>
-                                </select>
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">数据源</label>
+                            <select class="form-select" id="chartDataSource">
+                                <option value="">加载中...</option>
+                            </select>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">图表类型</label>
-                                <select class="form-select" id="chartType">
-                                    <option value="bar">柱状图</option>
-                                    <option value="line">折线图</option>
-                                    <option value="pie">饼图</option>
-                                    <option value="doughnut">环形图</option>
-                                </select>
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">图表类型</label>
+                            <select class="form-select" id="chartType">
+                                <option value="bar">柱状图</option>
+                                <option value="line">折线图</option>
+                                <option value="pie">饼图</option>
+                                <option value="doughnut">环形图</option>
+                            </select>
                         </div>
                     </div>
                     
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">标签字段 (X轴)</label>
-                                <select class="form-select" id="chartXField">
-                                    <option value="">请选择字段</option>
-                                </select>
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">X轴字段</label>
+                            <select class="form-select" id="chartXField">
+                                <option value="">请选择字段</option>
+                            </select>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">数值字段 (Y轴)</label>
-                                <select class="form-select" id="chartYField">
-                                    <option value="">请选择字段</option>
-                                </select>
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Y轴字段</label>
+                            <select class="form-select" id="chartYField">
+                                <option value="">请选择字段</option>
+                            </select>
                         </div>
                     </div>
                     
@@ -107,70 +149,13 @@
                         <label class="form-label">图表标题</label>
                         <input type="text" class="form-control" id="chartTitle" placeholder="请输入图表标题">
                     </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="chartShowLegend" checked>
-                                <label class="form-check-label" for="chartShowLegend">
-                                    显示图例
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="chartAnimate" checked>
-                                <label class="form-check-label" for="chartAnimate">
-                                    启用动画
-                                </label>
-                            </div>
-                        </div>
-                    </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" id="saveChartConfigBtn">保存配置</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 图表选择模态框 -->
-<div class="modal fade" id="addChartModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">添加图表</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <button class="btn btn-outline-primary chart-template-btn w-100" data-size="small">
-                            <i class="fas fa-square"></i><br>
-                            小图表
-                        </button>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <button class="btn btn-outline-success chart-template-btn w-100" data-size="medium">
-                            <i class="fas fa-th-large"></i><br>
-                            中图表
-                        </button>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <button class="btn btn-outline-warning chart-template-btn w-100" data-size="large">
-                            <i class="fas fa-th"></i><br>
-                            大图表
-                        </button>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <button class="btn btn-outline-info chart-template-btn w-100" data-size="wide">
-                            <i class="fas fa-arrows-alt-h"></i><br>
-                            宽图表
-                        </button>
-                    </div>
-                </div>
+                <button type="button" class="btn btn-primary" id="saveChartConfigBtn">
+                    <i class="fas fa-save"></i> 保存配置
+                </button>
             </div>
         </div>
     </div>
@@ -179,365 +164,35 @@
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
 // 仪表盘状态管理
 let dashboard = {
     charts: [],
-    editMode: true,
     nextId: 1
 };
 
 // DOM加载完成后初始化
 document.addEventListener('DOMContentLoaded', function() {
-    initializeDashboard();
     loadDataSourceList();
     
     // 绑定事件
-    document.getElementById('addChartBtn').addEventListener('click', openAddChartModal);
+    document.getElementById('addChartBtn').addEventListener('click', openChartConfiguration);
     document.getElementById('saveDashboardBtn').addEventListener('click', saveDashboard);
     document.getElementById('clearDashboardBtn').addEventListener('click', clearDashboard);
-    document.getElementById('editModeBtn').addEventListener('click', () => setEditMode(true));
-    document.getElementById('viewModeBtn').addEventListener('click', () => setEditMode(false));
     document.getElementById('saveChartConfigBtn').addEventListener('click', saveChartConfiguration);
     
-    // 图表模板按钮事件
-    document.querySelectorAll('.chart-template-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const size = this.getAttribute('data-size');
-            addChartToDashboard(size);
-            bootstrap.Modal.getInstance(document.getElementById('addChartModal')).hide();
-        });
-    });
+    // 加载已保存的仪表盘
+    loadDashboard();
 });
-
-// 初始化仪表盘
-function initializeDashboard() {
-    const container = document.getElementById('dashboardContainer');
-    new Sortable(container, {
-        animation: 150,
-        ghostClass: 'sortable-ghost',
-        filter: '.dashboard-placeholder',
-        on End: function(evt) {
-            // 拖拽结束后的处理
-            updateChartPositions();
-        }
-    });
-}
-
-// 设置编辑模式
-function setEditMode(enabled) {
-    dashboard.editMode = enabled;
-    
-    // 更新按钮状态
-    document.getElementById('editModeBtn').classList.toggle('active', enabled);
-    document.getElementById('viewModeBtn').classList.toggle('active', !enabled);
-    
-    // 更新图表操作按钮显示状态
-    document.querySelectorAll('.chart-actions').forEach(actions => {
-        actions.style.display = enabled ? 'block' : 'none';
-    });
-    
-    // 更新容器类名
-    document.getElementById('dashboardContainer').className = 
-        enabled ? 'dashboard-grid' : 'dashboard-grid view-mode';
-}
-
-// 打开添加图表模态框
-function openAddChartModal() {
-    const modal = new bootstrap.Modal(document.getElementById('addChartModal'));
-    modal.show();
-}
-
-// 添加图表到仪表盘
-function addChartToDashboard(size) {
-    const container = document.getElementById('dashboardContainer');
-    
-    // 移除占位符
-    const placeholder = container.querySelector('.dashboard-placeholder');
-    if (placeholder) {
-        placeholder.remove();
-    }
-    
-    // 创建图表容器
-    const chartId = 'chart-' + dashboard.nextId++;
-    const chartElement = document.createElement('div');
-    chartElement.className = `dashboard-item dashboard-item-${size}`;
-    chartElement.id = chartId;
-    chartElement.innerHTML = `
-        <div class="card h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span class="chart-title">未配置图表</span>
-                <div class="chart-actions">
-                    <button class="btn btn-sm btn-outline-primary configure-chart" data-chart-id="${chartId}">
-                        <i class="fas fa-cog"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger delete-chart" data-chart-id="${chartId}">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="chart-container" style="position: relative; height: 100%;">
-                    <div class="chart-placeholder d-flex align-items-center justify-content-center h-100">
-                        <div class="text-center">
-                            <i class="fas fa-chart-bar fa-2x text-muted mb-2"></i>
-                            <p class="text-muted">点击齿轮图标配置图表</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    container.appendChild(chartElement);
-    
-    // 绑定图表操作事件
-    chartElement.querySelector('.configure-chart').addEventListener('click', function() {
-        openChartConfiguration(chartId);
-    });
-    
-    chartElement.querySelector('.delete-chart').addEventListener('click', function() {
-        deleteChart(chartId);
-    });
-    
-    // 添加到仪表盘数据中
-    dashboard.charts.push({
-        id: chartId,
-        size: size,
-        config: null
-    });
-    
-    // 如果是查看模式，隐藏操作按钮
-    if (!dashboard.editMode) {
-        chartElement.querySelector('.chart-actions').style.display = 'none';
-    }
-}
-
-// 打开图表配置
-function openChartConfiguration(chartId) {
-    const chart = dashboard.charts.find(c => c.id === chartId);
-    if (!chart) return;
-    
-    // 填充表单数据
-    document.getElementById('chartId').value = chartId;
-    
-    // 如果已有配置，填充到表单
-    if (chart.config) {
-        document.getElementById('chartDataSource').value = chart.config.dataSource || '';
-        document.getElementById('chartType').value = chart.config.type || 'bar';
-        document.getElementById('chartXField').value = chart.config.xField || '';
-        document.getElementById('chartYField').value = chart.config.yField || '';
-        document.getElementById('chartTitle').value = chart.config.title || '';
-        document.getElementById('chartShowLegend').checked = chart.config.showLegend !== false;
-        document.getElementById('chartAnimate').checked = chart.config.animate !== false;
-        
-        // 更新字段选项
-        if (chart.config.dataSource) {
-            updateFieldOptions(chart.config.dataSource);
-        }
-    } else {
-        // 清空表单
-        document.getElementById('chartConfigForm').reset();
-        document.getElementById('chartXField').innerHTML = '<option value="">请选择字段</option>';
-        document.getElementById('chartYField').innerHTML = '<option value="">请选择字段</option>';
-    }
-    
-    // 显示模态框
-    const modal = new bootstrap.Modal(document.getElementById('chartConfigModal'));
-    modal.show();
-}
-
-// 保存图表配置
-function saveChartConfiguration() {
-    const chartId = document.getElementById('chartId').value;
-    const chart = dashboard.charts.find(c => c.id === chartId);
-    if (!chart) return;
-    
-    // 获取表单数据
-    const config = {
-        dataSource: document.getElementById('chartDataSource').value,
-        type: document.getElementById('chartType').value,
-        xField: document.getElementById('chartXField').value,
-        yField: document.getElementById('chartYField').value,
-        title: document.getElementById('chartTitle').value,
-        showLegend: document.getElementById('chartShowLegend').checked,
-        animate: document.getElementById('chartAnimate').checked
-    };
-    
-    // 验证必填项
-    if (!config.dataSource || !config.xField || !config.yField) {
-        showMessage('请填写所有必填项', 'warning');
-        return;
-    }
-    
-    // 保存配置
-    chart.config = config;
-    
-    // 更新图表标题
-    const chartElement = document.getElementById(chartId);
-    const titleElement = chartElement.querySelector('.chart-title');
-    titleElement.textContent = config.title || '未命名图表';
-    
-    // 生成图表
-    generateChart(chartId, config);
-    
-    // 关闭模态框
-    bootstrap.Modal.getInstance(document.getElementById('chartConfigModal')).hide();
-    
-    showMessage('图表配置已保存', 'success');
-}
-
-// 生成图表
-function generateChart(chartId, config) {
-    // 这里应该调用后端API获取数据并生成图表
-    // 为简化演示，我们使用模拟数据
-    
-    const chartElement = document.getElementById(chartId);
-    const container = chartElement.querySelector('.chart-container');
-    
-    // 移除占位符
-    const placeholder = container.querySelector('.chart-placeholder');
-    if (placeholder) {
-        placeholder.remove();
-    }
-    
-    // 创建canvas元素
-    let canvas = container.querySelector('canvas');
-    if (!canvas) {
-        canvas = document.createElement('canvas');
-        container.appendChild(canvas);
-    }
-    
-    // 清除之前的图表实例
-    if (chartElement.chartInstance) {
-        chartElement.chartInstance.destroy();
-    }
-    
-    // 获取图表上下文
-    const ctx = canvas.getContext('2d');
-    
-    // 模拟数据
-    const labels = ['一月', '二月', '三月', '四月', '五月', '六月'];
-    const data = [12, 19, 3, 5, 2, 3];
-    
-    // 创建图表
-    const chartConfig = {
-        type: config.type,
-        data: {
-            labels: labels,
-            datasets: [{
-                label: config.yField,
-                data: data,
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: !!config.title,
-                    text: config.title
-                },
-                legend: {
-                    display: config.showLegend
-                }
-            }
-        }
-    };
-    
-    // 根据图表类型设置特定配置
-    switch(config.type) {
-        case 'bar':
-            chartConfig.data.datasets[0].backgroundColor = 'rgba(54, 162, 235, 0.7)';
-            chartConfig.data.datasets[0].borderColor = 'rgba(54, 162, 235, 1)';
-            chartConfig.options.scales = {
-                y: {
-                    beginAtZero: true
-                }
-            };
-            break;
-            
-        case 'line':
-            chartConfig.data.datasets[0].fill = false;
-            chartConfig.data.datasets[0].borderColor = 'rgb(75, 192, 192)';
-            chartConfig.data.datasets[0].backgroundColor = 'rgba(75, 192, 192, 0.2)';
-            chartConfig.data.datasets[0].tension = 0.2;
-            chartConfig.options.scales = {
-                y: {
-                    beginAtZero: true
-                }
-            };
-            break;
-            
-        case 'pie':
-        case 'doughnut':
-            chartConfig.data.datasets[0].backgroundColor = [
-                'rgba(255, 99, 132, 0.8)',
-                'rgba(54, 162, 235, 0.8)',
-                'rgba(255, 205, 86, 0.8)',
-                'rgba(75, 192, 192, 0.8)',
-                'rgba(153, 102, 255, 0.8)',
-                'rgba(255, 159, 64, 0.8)'
-            ];
-            chartConfig.data.datasets[0].borderColor = '#fff';
-            chartConfig.data.datasets[0].borderWidth = 2;
-            break;
-    }
-    
-    // 创建图表实例
-    chartElement.chartInstance = new Chart(ctx, chartConfig);
-}
-
-// 删除图表
-function deleteChart(chartId) {
-    if (!dashboard.editMode) {
-        showMessage('请先切换到编辑模式', 'warning');
-        return;
-    }
-    
-    // 从DOM中移除
-    const chartElement = document.getElementById(chartId);
-    if (chartElement) {
-        // 销毁图表实例
-        if (chartElement.chartInstance) {
-            chartElement.chartInstance.destroy();
-        }
-        chartElement.remove();
-    }
-    
-    // 从数据中移除
-    dashboard.charts = dashboard.charts.filter(c => c.id !== chartId);
-    
-    // 如果没有图表了，显示占位符
-    if (dashboard.charts.length === 0) {
-        const container = document.getElementById('dashboardContainer');
-        container.innerHTML = `
-            <div class="dashboard-placeholder">
-                <p class="text-muted text-center my-5">
-                    <i class="fas fa-plus-circle fa-3x mb-3"></i><br>
-                    点击"添加图表"按钮开始创建您的仪表盘
-                </p>
-            </div>
-        `;
-    }
-    
-    showMessage('图表已删除', 'success');
-}
-
-// 更新图表位置
-function updateChartPositions() {
-    // 实际项目中这里会更新图表的位置信息
-    console.log('图表位置已更新');
-}
 
 // 加载数据源列表
 function loadDataSourceList() {
+    const selectElement = document.getElementById('chartDataSource');
+    selectElement.innerHTML = '<option value="">加载中...</option>';
+    
     axios.get('/api/data_sources')
         .then(function(response) {
             const sources = response.data;
-            const selectElement = document.getElementById('chartDataSource');
             
             if (!sources || sources.length === 0) {
                 selectElement.innerHTML = '<option value="">暂无数据源</option>';
@@ -563,6 +218,7 @@ function loadDataSourceList() {
         })
         .catch(function(error) {
             console.error('Error loading data sources:', error);
+            selectElement.innerHTML = '<option value="">加载失败</option>';
             showMessage('加载数据源失败: ' + error.message, 'danger');
         });
 }
@@ -582,7 +238,7 @@ function updateFieldOptions(filename) {
                 
                 // 更新Y轴字段选项（仅数值型字段）
                 let yOptionsHtml = '<option value="">请选择字段</option>';
-                const numericColumns = data.info?.numeric_columns || [];
+                const numericColumns = data.info && data.info.numeric_columns ? data.info.numeric_columns : [];
                 if (numericColumns.length > 0) {
                     numericColumns.forEach(function(column) {
                         yOptionsHtml += `<option value="${column}">${column}</option>`;
@@ -602,29 +258,279 @@ function updateFieldOptions(filename) {
         });
 }
 
+// 打开图表配置
+function openChartConfiguration() {
+    // 清空表单
+    document.getElementById('chartConfigForm').reset();
+    document.getElementById('chartXField').innerHTML = '<option value="">请选择字段</option>';
+    document.getElementById('chartYField').innerHTML = '<option value="">请选择字段</option>';
+    
+    // 显示模态框
+    const modal = new bootstrap.Modal(document.getElementById('chartConfigModal'));
+    modal.show();
+}
+
+// 保存图表配置
+function saveChartConfiguration() {
+    const dataSource = document.getElementById('chartDataSource').value;
+    const chartType = document.getElementById('chartType').value;
+    const xField = document.getElementById('chartXField').value;
+    const yField = document.getElementById('chartYField').value;
+    const title = document.getElementById('chartTitle').value;
+    
+    // 验证必填项
+    if (!dataSource || !xField || !yField) {
+        showMessage('请填写所有必填项', 'warning');
+        return;
+    }
+    
+    // 创建图表配置
+    const chartConfig = {
+        id: 'chart-' + dashboard.nextId++,
+        dataSource: dataSource,
+        type: chartType,
+        xField: xField,
+        yField: yField,
+        title: title || `${yField} by ${xField}`
+    };
+    
+    // 添加到仪表盘
+    addChartToDashboard(chartConfig);
+    
+    // 关闭模态框
+    bootstrap.Modal.getInstance(document.getElementById('chartConfigModal')).hide();
+    
+    showMessage('图表已添加到仪表盘', 'success');
+}
+
+// 添加图表到仪表盘
+function addChartToDashboard(config) {
+    const container = document.getElementById('dashboardContainer');
+    
+    // 移除占位符
+    const placeholder = container.querySelector('.dashboard-placeholder');
+    if (placeholder) {
+        placeholder.remove();
+    }
+    
+    // 创建图表容器
+    const chartElement = document.createElement('div');
+    chartElement.className = 'dashboard-item animate__animated animate__fadeIn';
+    chartElement.id = config.id;
+    chartElement.innerHTML = `
+        <div class="dashboard-item-header">
+            <h5 class="dashboard-item-title">${config.title}</h5>
+            <div>
+                <button class="btn btn-sm btn-outline-primary configure-chart" data-chart-id="${config.id}">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger delete-chart" data-chart-id="${config.id}">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="dashboard-item-body">
+            <div class="chart-container">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">加载中...</span>
+                    </div>
+                    <p class="mt-2">图表加载中...</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(chartElement);
+    
+    // 绑定图表操作事件
+    chartElement.querySelector('.configure-chart').addEventListener('click', function() {
+        editChart(config.id);
+    });
+    
+    chartElement.querySelector('.delete-chart').addEventListener('click', function() {
+        deleteChart(config.id);
+    });
+    
+    // 添加到仪表盘数据中
+    dashboard.charts.push(config);
+    
+    // 生成图表
+    generateChart(config.id, config);
+}
+
+// 生成图表
+function generateChart(chartId, config) {
+    // 调用后端API获取真实数据
+    axios.get(`/api/visualization/${config.dataSource}`)
+        .then(function(response) {
+            const data = response.data;
+            if (data.error) {
+                showMessage('数据加载失败: ' + data.error, 'danger');
+                return;
+            }
+            
+            const chartElement = document.getElementById(chartId);
+            const container = chartElement.querySelector('.chart-container');
+            
+            // 准备数据
+            const labels = data.data.map(function(item) { 
+                return item[config.xField]; 
+            });
+            
+            const values = data.data.map(function(item) { 
+                const value = item[config.yField];
+                return isNaN(parseFloat(value)) ? 0 : parseFloat(value);
+            });
+            
+            // 创建canvas元素
+            const canvas = document.createElement('canvas');
+            container.innerHTML = '';
+            container.appendChild(canvas);
+            
+            // 获取图表上下文
+            const ctx = canvas.getContext('2d');
+            
+            // 创建图表
+            const chartConfig = {
+                type: config.type,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: config.yField,
+                        data: values,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: config.title
+                        },
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            };
+            
+            // 根据图表类型设置特定配置
+            switch(config.type) {
+                case 'bar':
+                    chartConfig.data.datasets[0].backgroundColor = 'rgba(54, 162, 235, 0.2)';
+                    chartConfig.data.datasets[0].borderColor = 'rgba(54, 162, 235, 1)';
+                    chartConfig.options.scales = {
+                        y: {
+                            beginAtZero: true
+                        }
+                    };
+                    break;
+                    
+                case 'line':
+                    chartConfig.data.datasets[0].fill = false;
+                    chartConfig.data.datasets[0].borderColor = 'rgb(75, 192, 192)';
+                    chartConfig.data.datasets[0].tension = 0.1;
+                    chartConfig.options.scales = {
+                        y: {
+                            beginAtZero: true
+                        }
+                    };
+                    break;
+                    
+                case 'pie':
+                case 'doughnut':
+                    chartConfig.data.datasets[0].backgroundColor = [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 205, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ];
+                    chartConfig.data.datasets[0].borderColor = [
+                        'rgb(255, 99, 132)',
+                        'rgb(54, 162, 235)',
+                        'rgb(255, 205, 86)',
+                        'rgb(75, 192, 192)',
+                        'rgb(153, 102, 255)',
+                        'rgb(255, 159, 64)'
+                    ];
+                    chartConfig.data.datasets[0].borderWidth = 1;
+                    break;
+            }
+            
+            // 创建图表实例
+            new Chart(ctx, chartConfig);
+        })
+        .catch(function(error) {
+            console.error('Error generating chart:', error);
+            showMessage('图表生成失败: ' + error.message, 'danger');
+        });
+}
+
+// 编辑图表
+function editChart(chartId) {
+    const chart = dashboard.charts.find(function(c) { return c.id === chartId; });
+    if (!chart) return;
+    
+    // 填充表单数据
+    document.getElementById('chartDataSource').value = chart.dataSource;
+    document.getElementById('chartType').value = chart.type;
+    document.getElementById('chartTitle').value = chart.title;
+    
+    // 更新字段选项
+    updateFieldOptions(chart.dataSource);
+    
+    // 设置字段值
+    setTimeout(function() {
+        document.getElementById('chartXField').value = chart.xField;
+        document.getElementById('chartYField').value = chart.yField;
+    }, 100);
+    
+    // 显示模态框
+    const modal = new bootstrap.Modal(document.getElementById('chartConfigModal'));
+    modal.show();
+}
+
+// 删除图表
+function deleteChart(chartId) {
+    // 从DOM中移除
+    const chartElement = document.getElementById(chartId);
+    if (chartElement) {
+        chartElement.remove();
+    }
+    
+    // 从数据中移除
+    dashboard.charts = dashboard.charts.filter(function(c) { return c.id !== chartId; });
+    
+    // 如果没有图表了，显示占位符
+    if (dashboard.charts.length === 0) {
+        const container = document.getElementById('dashboardContainer');
+        container.innerHTML = `
+            <div class="dashboard-placeholder">
+                <i class="fas fa-plus-circle fa-3x text-muted mb-3"></i>
+                <h4>欢迎使用数据仪表盘</h4>
+                <p class="text-muted">点击"添加图表"按钮开始创建您的个性化数据看板</p>
+            </div>
+        `;
+    }
+    
+    showMessage('图表已删除', 'success');
+}
+
 // 保存仪表盘
 function saveDashboard() {
-    // 实际项目中这里会将仪表盘配置保存到后端
-    console.log('保存仪表盘:', dashboard);
+    // 保存仪表盘配置到本地存储
+    localStorage.setItem('dashboardConfig', JSON.stringify(dashboard.charts));
     showMessage('仪表盘已保存', 'success');
 }
 
 // 清空仪表盘
 function clearDashboard() {
-    if (!dashboard.editMode) {
-        showMessage('请先切换到编辑模式', 'warning');
-        return;
-    }
-    
     if (confirm('确定要清空整个仪表盘吗？此操作不可撤销。')) {
-        // 销毁所有图表实例
-        dashboard.charts.forEach(chart => {
-            const chartElement = document.getElementById(chart.id);
-            if (chartElement && chartElement.chartInstance) {
-                chartElement.chartInstance.destroy();
-            }
-        });
-        
         // 清空数据
         dashboard.charts = [];
         
@@ -632,77 +538,43 @@ function clearDashboard() {
         const container = document.getElementById('dashboardContainer');
         container.innerHTML = `
             <div class="dashboard-placeholder">
-                <p class="text-muted text-center my-5">
-                    <i class="fas fa-plus-circle fa-3x mb-3"></i><br>
-                    点击"添加图表"按钮开始创建您的仪表盘
-                </p>
+                <i class="fas fa-plus-circle fa-3x text-muted mb-3"></i>
+                <h4>欢迎使用数据仪表盘</h4>
+                <p class="text-muted">点击"添加图表"按钮开始创建您的个性化数据看板</p>
             </div>
         `;
+        
+        // 清除本地存储
+        localStorage.removeItem('dashboardConfig');
         
         showMessage('仪表盘已清空', 'success');
     }
 }
+
+// 加载仪表盘
+function loadDashboard() {
+    // 从本地存储加载仪表盘配置
+    const savedConfig = localStorage.getItem('dashboardConfig');
+    if (savedConfig) {
+        try {
+            const charts = JSON.parse(savedConfig);
+            dashboard.charts = charts;
+            
+            // 如果有保存的图表配置，加载它们
+            if (charts.length > 0) {
+                const container = document.getElementById('dashboardContainer');
+                container.innerHTML = '';
+                
+                charts.forEach(function(chart) {
+                    // 添加到仪表盘
+                    addChartToDashboard(chart);
+                });
+            }
+        } catch (e) {
+            console.error('加载仪表盘配置失败:', e);
+            showMessage('加载仪表盘配置失败', 'danger');
+        }
+    }
+}
 </script>
-
-<style>
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1rem;
-    min-height: 500px;
-}
-
-.dashboard-grid.view-mode {
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-}
-
-.dashboard-item {
-    position: relative;
-}
-
-.dashboard-item-small {
-    grid-column: span 1;
-}
-
-.dashboard-item-medium {
-    grid-column: span 2;
-}
-
-.dashboard-item-large {
-    grid-column: span 3;
-}
-
-.dashboard-item-wide {
-    grid-column: span 4;
-}
-
-.chart-actions {
-    display: block;
-}
-
-.dashboard-grid.view-mode .chart-actions {
-    display: none;
-}
-
-.sortable-ghost {
-    opacity: 0.5;
-    background: #e9ecef;
-}
-
-.chart-container {
-    min-height: 300px;
-}
-
-@media (max-width: 768px) {
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .dashboard-item-medium,
-    .dashboard-item-large,
-    .dashboard-item-wide {
-        grid-column: span 1;
-    }
-}
-</style>
 {% endblock %}

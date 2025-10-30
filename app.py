@@ -82,7 +82,7 @@ def upload_data():
         return jsonify({'error': str(e)}), 500
 
 # API: 获取数据预览
-@app.route('/api/data/<filename>/preview')
+@app.route('/api/<filename>')#/preview
 def data_preview(filename):
     try:
         file_path = os.path.join(DATA_DIR, filename)
@@ -161,6 +161,7 @@ def process_data():
         data = request.get_json()
         filename = data.get('filename')
         operations = data.get('operations', [])
+        output_filename = data.get('output_filename', f"processed_{filename}")
         
         file_path = os.path.join(DATA_DIR, filename)
         if not os.path.exists(file_path):
@@ -201,13 +202,18 @@ def process_data():
             if op_type == 'filter':
                 column = operation.get('column')
                 value = operation.get('value')
-                # 尝试转换value为合适的类型
+                condition = operation.get('condition')
                 if column in df.columns:
-                    # 先尝试按原类型过滤
-                    try:
+                    if condition == 'equal':
                         df = df[df[column].astype(str) == str(value)]
-                    except:
-                        df = df[df[column] == value]
+                    elif condition == 'not_equal':
+                        df = df[df[column].astype(str) != str(value)]
+                    elif condition == 'greater':
+                        df = df[df[column] > float(value)]
+                    elif condition == 'less':
+                        df = df[df[column] < float(value)]
+                    elif condition == 'contains':
+                        df = df[df[column].astype(str).str.contains(str(value), na=False)]
             elif op_type == 'sort':
                 column = operation.get('column')
                 ascending = operation.get('ascending', True)
@@ -227,9 +233,23 @@ def process_data():
                             df = grouped.mean(numeric_only=True)
                         elif agg_func == 'count':
                             df = grouped.count().rename(columns={col: f'{col}_count' for col in df.columns if col != column})
+                        elif agg_func == 'min':
+                            df = grouped.min(numeric_only=True)
+                        elif agg_func == 'max':
+                            df = grouped.max(numeric_only=True)
+            elif op_type == 'rename':
+                column = operation.get('column')
+                new_name = operation.get('new_name')
+                if column in df.columns:
+                    df = df.rename(columns={column: new_name})
+            elif op_type == 'drop_columns':
+                columns = operation.get('columns', [])
+                # 确保不删除所有列
+                if len(columns) < len(df.columns):
+                    df = df.drop(columns=columns, errors='ignore')
         
         # 保存处理后的数据
-        processed_filename = f"processed_{filename}"
+        processed_filename = f"{output_filename}.csv"
         processed_path = os.path.join(DATA_DIR, processed_filename)
         df.to_csv(processed_path, index=False, encoding='utf-8')
         

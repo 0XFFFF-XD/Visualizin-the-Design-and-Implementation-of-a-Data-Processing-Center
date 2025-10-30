@@ -2,136 +2,104 @@
 
 {% block title %}数据可视化 - 数据处理与可视化中心{% endblock %}
 
+{% block head %}
+<style>
+    .chart-container {
+        position: relative;
+        height: 400px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        padding: 1rem;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <h2 class="my-3">数据可视化</h2>
-        </div>
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-chart-line"></i> 数据可视化</h2>
+        <p class="text-muted">集成丰富的可视化图表类型，支持用户通过筛选等交互方式，从不同维度与粒度对数据进行探索与分析</p>
     </div>
-    
-    <div class="row">
-        <!-- 控制面板 -->
-        <div class="col-xl-3 col-lg-4 col-md-5">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">数据源选择</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label">选择数据文件</label>
-                        <select class="form-select" id="visualizationDataSelect">
-                            <option selected>请选择数据源</option>
-                        </select>
-                    </div>
-                    <button id="loadVisualizationBtn" class="btn btn-primary w-100" disabled>
-                        <i class="fas fa-download"></i> 加载数据
-                    </button>
-                </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-3 col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-database"></i> 数据源选择</h5>
             </div>
-            
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">图表配置</h5>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">选择数据文件</label>
+                    <select class="form-select" id="visualizationDataSelect">
+                        <option value="">加载中...</option>
+                    </select>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label">图表类型</label>
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <button class="btn btn-outline-secondary chart-type-btn w-100" data-chart-type="bar">
-                                    <i class="fas fa-chart-bar"></i> 柱状图
-                                </button>
-                            </div>
-                            <div class="col-6">
-                                <button class="btn btn-outline-secondary chart-type-btn w-100" data-chart-type="line">
-                                    <i class="fas fa-chart-line"></i> 折线图
-                                </button>
-                            </div>
-                            <div class="col-6">
-                                <button class="btn btn-outline-secondary chart-type-btn w-100" data-chart-type="pie">
-                                    <i class="fas fa-chart-pie"></i> 饼图
-                                </button>
-                            </div>
-                            <div class="col-6">
-                                <button class="btn btn-outline-secondary chart-type-btn w-100" data-chart-type="doughnut">
-                                    <i class="fas fa-chart-pie"></i> 环形图
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div id="chartConfig" style="display: none;">
-                        <hr>
-                        <div class="mb-3">
-                            <label class="form-label">标签字段 (X轴)</label>
-                            <select class="form-select" id="xAxisField"></select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">数值字段 (Y轴)</label>
-                            <select class="form-select" id="yAxisField"></select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">图表标题</label>
-                            <input type="text" class="form-control" id="chartTitle" placeholder="请输入图表标题">
-                        </div>
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="showLegend" checked>
-                            <label class="form-check-label" for="showLegend">
-                                显示图例
-                            </label>
-                        </div>
-                        <button id="generateChartBtn" class="btn btn-success w-100">
-                            <i class="fas fa-chart-bar"></i> 生成图表
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card shadow-sm">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">图表操作</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <button id="downloadChartBtn" class="btn btn-outline-primary" disabled>
-                            <i class="fas fa-download"></i> 下载图表
-                        </button>
-                        <button id="addToDashboardBtn" class="btn btn-outline-success" disabled>
-                            <i class="fas fa-tachometer-alt"></i> 添加到仪表盘
-                        </button>
-                        <button id="resetChartBtn" class="btn btn-outline-secondary">
-                            <i class="fas fa-redo"></i> 重置配置
-                        </button>
-                    </div>
-                </div>
+                <button id="loadVisualizationBtn" class="btn btn-primary w-100" disabled>
+                    <i class="fas fa-download"></i> 加载数据
+                </button>
             </div>
         </div>
         
-        <!-- 主要内容区域 -->
-        <div class="col-xl-9 col-lg-8 col-md-7">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0">数据预览</h5>
-                </div>
-                <div class="card-body">
-                    <div id="dataInfo" class="mb-3"></div>
-                    <div id="visualizationDataPreview" class="table-responsive">
-                        <p class="text-muted text-center my-5">请先选择并加载数据源</p>
-                    </div>
-                </div>
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-sliders-h"></i> 图表配置</h5>
             </div>
-            
-            <div class="card shadow-sm">
-                <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0">图表展示</h5>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">图表类型</label>
+                    <select class="form-select" id="chartType">
+                        <option value="bar">柱状图</option>
+                        <option value="line">折线图</option>
+                        <option value="pie">饼图</option>
+                        <option value="doughnut">环形图</option>
+                        <option value="scatter">散点图</option>
+                    </select>
                 </div>
-                <div class="card-body">
-                    <div id="chartContainer" class="d-flex align-items-center justify-content-center" style="min-height: 400px;">
-                        <p class="text-muted text-center">
-                            <i class="fas fa-chart-bar fa-3x mb-3"></i><br>
-                            请选择图表类型并配置参数以生成图表
-                        </p>
+                
+                <div class="mb-3">
+                    <label class="form-label">X轴字段</label>
+                    <select class="form-select" id="xAxisField">
+                        <option value="">请选择字段</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Y轴字段</label>
+                    <select class="form-select" id="yAxisField">
+                        <option value="">请选择字段</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">图表标题</label>
+                    <input type="text" class="form-control" id="chartTitle" placeholder="请输入图表标题">
+                </div>
+                
+                <button id="generateChartBtn" class="btn btn-success w-100" disabled>
+                    <i class="fas fa-bolt"></i> 生成图表
+                </button>
+                
+                <button id="addToDashboardBtn" class="btn btn-warning w-100 mt-2" disabled>
+                    <i class="fas fa-tachometer-alt"></i> 添加到仪表盘
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-9 col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-bar"></i> 图表展示</h5>
+            </div>
+            <div class="card-body">
+                <div id="chartContainer" class="chart-container">
+                    <div class="d-flex align-items-center justify-content-center h-100">
+                        <div class="text-center">
+                            <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">请选择数据源并配置图表参数</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -142,13 +110,10 @@
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <script>
 let currentVisualizationData = null;
 let currentVisualizationFilename = null;
 let currentChart = null;
-let dataInfo = null;
-let currentChartConfig = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     // 加载数据源列表
@@ -167,49 +132,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // 图表类型按钮事件
-    var chartTypeButtons = document.querySelectorAll('.chart-type-btn');
-    for (var i = 0; i < chartTypeButtons.length; i++) {
-        chartTypeButtons[i].addEventListener('click', function() {
-            var chartType = this.getAttribute('data-chart-type');
-            selectChartType(chartType);
-        });
-    }
-    
-    // 生成图表按钮事件
-    document.getElementById('generateChartBtn').addEventListener('click', function() {
-        generateChart();
-    });
-    
-    // 下载图表按钮事件
-    document.getElementById('downloadChartBtn').addEventListener('click', function() {
-        downloadChart();
-    });
-    
-    // 添加到仪表盘按钮事件
-    document.getElementById('addToDashboardBtn').addEventListener('click', function() {
-        addToDashboard();
-    });
-    
-    // 重置按钮事件
-    document.getElementById('resetChartBtn').addEventListener('click', function() {
-        resetChart();
-    });
+    document.getElementById('chartType').addEventListener('change', updateFieldOptions);
+    document.getElementById('generateChartBtn').addEventListener('click', generateChart);
+    document.getElementById('addToDashboardBtn').addEventListener('click', addToDashboard);
 });
 
 // 加载数据源列表
 function loadVisualizationDataSourceList() {
+    const selectElement = document.getElementById('visualizationDataSelect');
+    selectElement.innerHTML = '<option value="">加载中...</option>';
+    
     axios.get('/api/data_sources')
         .then(function(response) {
             const sources = response.data;
-            const selectElement = document.getElementById('visualizationDataSelect');
             
             if (!sources || sources.length === 0) {
-                selectElement.innerHTML = '<option selected>暂无数据源</option>';
+                selectElement.innerHTML = '<option value="">暂无数据源</option>';
                 return;
             }
             
-            let selectHtml = '<option selected>请选择数据源</option>';
+            let selectHtml = '<option value="">请选择数据源</option>';
             sources.forEach(function(source) {
                 selectHtml += `<option value="${source.name}">${source.name}</option>`;
             });
@@ -217,165 +159,118 @@ function loadVisualizationDataSourceList() {
         })
         .catch(function(error) {
             console.error('Error loading data sources:', error);
+            selectElement.innerHTML = '<option value="">加载失败</option>';
             showMessage('加载数据源失败: ' + error.message, 'danger');
         });
 }
 
 // 加载可视化数据
 function loadVisualizationData(filename) {
-    const previewContainer = document.getElementById('visualizationDataPreview');
-    const infoContainer = document.getElementById('dataInfo');
-    previewContainer.innerHTML = '<p class="text-center my-5"><i class="fas fa-spinner fa-spin fa-2x"></i><br>数据加载中...</p>';
-    infoContainer.innerHTML = '';
+    const chartContainer = document.getElementById('chartContainer');
+    chartContainer.innerHTML = `
+        <div class="d-flex align-items-center justify-content-center h-100">
+            <div class="text-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">加载中...</span>
+                </div>
+                <p class="mt-2">数据加载中...</p>
+            </div>
+        </div>
+    `;
     
     axios.get(`/api/visualization/${filename}`)
         .then(function(response) {
             const data = response.data;
             if (data.error) {
-                previewContainer.innerHTML = `<div class="alert alert-danger">
-                    <h5><i class="fas fa-exclamation-triangle"></i> 加载失败</h5>
-                    <p class="mb-0">错误信息: ${data.error}</p>
-                    <small class="text-muted">请检查文件格式是否正确，确保是有效的CSV文件</small>
-                </div>`;
-                return;
-            }
-            
-            // 验证数据结构
-            if (!data || !data.columns || !data.data) {
-                previewContainer.innerHTML = `<div class="alert alert-danger">
-                    <h5><i class="fas fa-exclamation-circle"></i> 数据格式错误</h5>
-                    <p class="mb-0">返回的数据格式不正确，请检查文件内容</p>
-                </div>`;
+                chartContainer.innerHTML = `
+                    <div class="d-flex align-items-center justify-content-center h-100">
+                        <div class="alert alert-danger">
+                            <h5><i class="fas fa-exclamation-triangle"></i> 加载失败</h5>
+                            <p>错误信息: ${data.error}</p>
+                        </div>
+                    </div>
+                `;
                 return;
             }
             
             currentVisualizationData = data;
             currentVisualizationFilename = filename;
-            dataInfo = data.info || {};
             
-            // 显示数据信息
-            infoContainer.innerHTML = `
-                <div class="row text-center">
-                    <div class="col-md-4">
-                        <div class="alert alert-info mb-2">
-                            <h6 class="mb-0">${dataInfo.total_rows || 0}</h6>
-                            <small>总行数</small>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="alert alert-success mb-2">
-                            <h6 class="mb-0">${dataInfo.total_columns || 0}</h6>
-                            <small>总列数</small>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="alert alert-warning mb-2">
-                            <h6 class="mb-0">${(dataInfo.numeric_columns || []).length}</h6>
-                            <small>数值列</small>
-                        </div>
+            // 更新字段选项
+            updateFieldOptions();
+            
+            // 显示提示信息
+            chartContainer.innerHTML = `
+                <div class="d-flex align-items-center justify-content-center h-100">
+                    <div class="text-center">
+                        <i class="fas fa-info-circle fa-3x text-info mb-3"></i>
+                        <h5>数据加载成功</h5>
+                        <p>已加载 ${data.info.total_rows} 行数据，${data.info.total_columns} 列数据</p>
+                        <p>请选择图表参数并点击"生成图表"按钮</p>
                     </div>
                 </div>
             `;
             
-            // 构建表格
-            let tableHtml = '<table class="table table-striped table-hover table-sm"><thead class="table-dark"><tr>';
-            
-            // 表头
-            data.columns.forEach(function(column) {
-                tableHtml += `<th>${column}</th>`;
-            });
-            
-            tableHtml += '</tr></thead><tbody>';
-            
-            // 显示前10行数据
-            const displayData = data.data.slice(0, 10);
-            displayData.forEach(function(row) {
-                tableHtml += '<tr>';
-                data.columns.forEach(function(column) {
-                    const value = row[column];
-                    tableHtml += `<td>${value !== undefined && value !== null ? value : '<span class="text-muted">空</span>'}</td>`;
-                });
-                tableHtml += '</tr>';
-            });
-            
-            tableHtml += '</tbody></table>';
-            
-            // 如果数据超过10行，添加提示
-            if (data.data.length > 10) {
-                tableHtml += `<div class="mt-2 text-muted small">
-                    <i class="fas fa-info-circle"></i> 共 ${data.data.length} 行数据，仅显示前10行
-                </div>`;
-            }
-            
-            previewContainer.innerHTML = tableHtml;
+            // 启用生成按钮
+            document.getElementById('generateChartBtn').disabled = false;
         })
         .catch(function(error) {
-            console.error('Preview error:', error);
-            previewContainer.innerHTML = `<div class="alert alert-danger">
-                <h5><i class="fas fa-exclamation-triangle"></i> 数据加载失败</h5>
-                <p class="mb-0">错误信息: ${error.message}</p>
-                <small class="text-muted">请尝试刷新页面或重新上传文件</small>
-            </div>`;
+            console.error('Visualization data error:', error);
+            chartContainer.innerHTML = `
+                <div class="d-flex align-items-center justify-content-center h-100">
+                    <div class="alert alert-danger">
+                        <h5><i class="fas fa-exclamation-triangle"></i> 数据加载失败</h5>
+                        <p>错误信息: ${error.message}</p>
+                    </div>
+                </div>
+            `;
         });
 }
 
-// 选择图表类型
-function selectChartType(chartType) {
-    if (!currentVisualizationData) {
-        showMessage('请先加载数据', 'warning');
-        return;
-    }
+// 更新字段选项
+function updateFieldOptions() {
+    if (!currentVisualizationData) return;
     
-    // 高亮选中的按钮
-    var chartTypeButtons = document.querySelectorAll('.chart-type-btn');
-    for (var i = 0; i < chartTypeButtons.length; i++) {
-        chartTypeButtons[i].classList.remove('btn-primary');
-        chartTypeButtons[i].classList.add('btn-outline-secondary');
-    }
-    event.target.classList.remove('btn-outline-secondary');
-    event.target.classList.add('btn-primary');
+    const data = currentVisualizationData;
+    const chartType = document.getElementById('chartType').value;
     
-    // 显示配置区域
-    document.getElementById('chartConfig').style.display = 'block';
+    // 更新X轴字段选项
+    let xOptionsHtml = '<option value="">请选择字段</option>';
+    data.columns.forEach(function(column) {
+        xOptionsHtml += `<option value="${column}">${column}</option>`;
+    });
+    document.getElementById('xAxisField').innerHTML = xOptionsHtml;
     
-    // 填充字段选择
-    const xAxisSelect = document.getElementById('xAxisField');
-    const yAxisSelect = document.getElementById('yAxisField');
-    
-    // 填充X轴字段（所有字段）
-    let xOptionsHtml = '<option value="">请选择标签字段</option>';
-    if (currentVisualizationData.columns && currentVisualizationData.columns.length > 0) {
-        currentVisualizationData.columns.forEach(function(column) {
-            xOptionsHtml += `<option value="${column}">${column}</option>`;
-        });
-    }
-    
-    // 填充Y轴字段（仅数值型字段）
-    let yOptionsHtml = '<option value="">请选择数值字段</option>';
-    const numericColumns = dataInfo.numeric_columns || [];
-    if (numericColumns.length > 0) {
-        numericColumns.forEach(function(column) {
-            yOptionsHtml += `<option value="${column}">${column}</option>`;
-        });
+    // 更新Y轴字段选项（根据图表类型调整）
+    let yOptionsHtml = '<option value="">请选择字段</option>';
+    if (chartType === 'scatter') {
+        // 散点图需要两个数值字段
+        const numericColumns = data.info && data.info.numeric_columns ? data.info.numeric_columns : [];
+        if (numericColumns.length > 0) {
+            numericColumns.forEach(function(column) {
+                yOptionsHtml += `<option value="${column}">${column}</option>`;
+            });
+        } else {
+            // 如果没有识别出数值型字段，则显示所有字段
+            data.columns.forEach(function(column) {
+                yOptionsHtml += `<option value="${column}">${column}</option>`;
+            });
+        }
     } else {
-        // 如果没有识别出数值型字段，则显示所有字段
-        if (currentVisualizationData.columns && currentVisualizationData.columns.length > 0) {
-            currentVisualizationData.columns.forEach(function(column) {
+        // 其他图表类型
+        const numericColumns = data.info && data.info.numeric_columns ? data.info.numeric_columns : [];
+        if (numericColumns.length > 0) {
+            numericColumns.forEach(function(column) {
+                yOptionsHtml += `<option value="${column}">${column}</option>`;
+            });
+        } else {
+            // 如果没有识别出数值型字段，则显示所有字段
+            data.columns.forEach(function(column) {
                 yOptionsHtml += `<option value="${column}">${column}</option>`;
             });
         }
     }
-    
-    xAxisSelect.innerHTML = xOptionsHtml;
-    yAxisSelect.innerHTML = yOptionsHtml;
-    
-    // 设置默认标题
-    document.getElementById('chartTitle').value = `${chartType}图表 - ${currentVisualizationFilename}`;
-    
-    // 如果有数值型字段，设置默认选中第一个
-    if (numericColumns.length > 0) {
-        yAxisSelect.value = numericColumns[0];
-    }
+    document.getElementById('yAxisField').innerHTML = yOptionsHtml;
 }
 
 // 生成图表
@@ -385,32 +280,15 @@ function generateChart() {
         return;
     }
     
-    const activeButton = document.querySelector('.chart-type-btn.btn-primary');
-    const chartType = activeButton ? activeButton.getAttribute('data-chart-type') : null;
-    if (!chartType) {
-        showMessage('请选择图表类型', 'warning');
-        return;
-    }
-    
+    const chartType = document.getElementById('chartType').value;
     const xAxisField = document.getElementById('xAxisField').value;
     const yAxisField = document.getElementById('yAxisField').value;
-    const chartTitle = document.getElementById('chartTitle').value;
-    const showLegend = document.getElementById('showLegend').checked;
+    const chartTitle = document.getElementById('chartTitle').value || `${yAxisField} by ${xAxisField}`;
     
     if (!xAxisField || !yAxisField) {
-        showMessage('请选择标签字段和数值字段', 'warning');
+        showMessage('请选择X轴和Y轴字段', 'warning');
         return;
     }
-    
-    // 保存当前配置
-    currentChartConfig = {
-        dataSource: currentVisualizationFilename,
-        type: chartType,
-        xField: xAxisField,
-        yField: yAxisField,
-        title: chartTitle,
-        showLegend: showLegend
-    };
     
     // 销毁之前的图表实例
     if (currentChart) {
@@ -418,21 +296,18 @@ function generateChart() {
     }
     
     // 准备图表数据
-    const labels = [];
-    const values = [];
+    const labels = currentVisualizationData.data.map(function(item) { 
+        return item[xAxisField]; 
+    });
     
-    if (currentVisualizationData.data && currentVisualizationData.data.length > 0) {
-        currentVisualizationData.data.forEach(function(item) {
-            labels.push(item[xAxisField]);
-            const value = item[yAxisField];
-            // 尝试转换为数字，如果失败则返回0
-            values.push(isNaN(parseFloat(value)) ? 0 : parseFloat(value));
-        });
-    }
+    const values = currentVisualizationData.data.map(function(item) { 
+        const value = item[yAxisField];
+        return isNaN(parseFloat(value)) ? 0 : parseFloat(value);
+    });
     
     // 创建图表容器
     const chartContainer = document.getElementById('chartContainer');
-    chartContainer.innerHTML = '<canvas id="visualizationChart" height="400"></canvas>';
+    chartContainer.innerHTML = '<canvas id="visualizationChart"></canvas>';
     
     // 获取图表上下文
     const ctx = document.getElementById('visualizationChart').getContext('2d');
@@ -445,7 +320,7 @@ function generateChart() {
             datasets: [{
                 label: yAxisField,
                 data: values,
-                borderWidth: 2
+                borderWidth: 1
             }]
         },
         options: {
@@ -453,15 +328,11 @@ function generateChart() {
             maintainAspectRatio: false,
             plugins: {
                 title: {
-                    display: !!chartTitle,
-                    text: chartTitle,
-                    font: {
-                        size: 16
-                    }
+                    display: true,
+                    text: chartTitle
                 },
                 legend: {
-                    display: showLegend,
-                    position: chartType === 'pie' || chartType === 'doughnut' ? 'top' : 'top'
+                    display: true
                 }
             }
         }
@@ -470,19 +341,11 @@ function generateChart() {
     // 根据图表类型设置特定配置
     switch(chartType) {
         case 'bar':
-            chartConfig.data.datasets[0].backgroundColor = 'rgba(54, 162, 235, 0.7)';
+            chartConfig.data.datasets[0].backgroundColor = 'rgba(54, 162, 235, 0.2)';
             chartConfig.data.datasets[0].borderColor = 'rgba(54, 162, 235, 1)';
             chartConfig.options.scales = {
                 y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                    }
-                },
-                x: {
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                    }
+                    beginAtZero: true
                 }
             };
             break;
@@ -490,141 +353,61 @@ function generateChart() {
         case 'line':
             chartConfig.data.datasets[0].fill = false;
             chartConfig.data.datasets[0].borderColor = 'rgb(75, 192, 192)';
-            chartConfig.data.datasets[0].backgroundColor = 'rgba(75, 192, 192, 0.2)';
-            chartConfig.data.datasets[0].tension = 0.2;
+            chartConfig.data.datasets[0].tension = 0.1;
             chartConfig.options.scales = {
                 y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                    }
-                },
-                x: {
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                    }
+                    beginAtZero: true
                 }
             };
             break;
             
         case 'pie':
-            chartConfig.data.datasets[0].backgroundColor = [
-                'rgba(255, 99, 132, 0.8)',
-                'rgba(54, 162, 235, 0.8)',
-                'rgba(255, 205, 86, 0.8)',
-                'rgba(75, 192, 192, 0.8)',
-                'rgba(153, 102, 255, 0.8)',
-                'rgba(255, 159, 64, 0.8)',
-                'rgba(199, 199, 199, 0.8)',
-                'rgba(83, 102, 255, 0.8)',
-                'rgba(255, 99, 255, 0.8)',
-                'rgba(99, 255, 132, 0.8)'
-            ];
-            chartConfig.data.datasets[0].borderColor = '#fff';
-            chartConfig.data.datasets[0].borderWidth = 2;
-            break;
-            
         case 'doughnut':
             chartConfig.data.datasets[0].backgroundColor = [
-                'rgba(255, 99, 132, 0.8)',
-                'rgba(54, 162, 235, 0.8)',
-                'rgba(255, 205, 86, 0.8)',
-                'rgba(75, 192, 192, 0.8)',
-                'rgba(153, 102, 255, 0.8)',
-                'rgba(255, 159, 64, 0.8)',
-                'rgba(199, 199, 199, 0.8)',
-                'rgba(83, 102, 255, 0.8)',
-                'rgba(255, 99, 255, 0.8)',
-                'rgba(99, 255, 132, 0.8)'
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 205, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
             ];
-            chartConfig.data.datasets[0].borderColor = '#fff';
-            chartConfig.data.datasets[0].borderWidth = 2;
+            chartConfig.data.datasets[0].borderColor = [
+                'rgb(255, 99, 132)',
+                'rgb(54, 162, 235)',
+                'rgb(255, 205, 86)',
+                'rgb(75, 192, 192)',
+                'rgb(153, 102, 255)',
+                'rgb(255, 159, 64)'
+            ];
+            chartConfig.data.datasets[0].borderWidth = 1;
+            break;
+            
+        case 'scatter':
+            chartConfig.data.datasets[0].backgroundColor = 'rgba(255, 99, 132, 0.2)';
+            chartConfig.data.datasets[0].borderColor = 'rgba(255, 99, 132, 1)';
+            chartConfig.data.datasets[0].showLine = false;
+            chartConfig.data.datasets[0].pointRadius = 5;
             break;
     }
     
+    // 创建图表实例
     currentChart = new Chart(ctx, chartConfig);
     
-    // 启用下载和添加到仪表盘按钮
-    document.getElementById('downloadChartBtn').disabled = false;
+    // 启用添加到仪表盘按钮
     document.getElementById('addToDashboardBtn').disabled = false;
     
     showMessage('图表生成成功', 'success');
 }
 
-// 下载图表
-function downloadChart() {
+// 添加到仪表盘
+function addToDashboard() {
     if (!currentChart) {
         showMessage('请先生成图表', 'warning');
         return;
     }
     
-    const link = document.createElement('a');
-    link.download = `${currentVisualizationFilename}_chart.png`;
-    link.href = document.getElementById('visualizationChart').toDataURL('image/png', 1.0);
-    link.click();
-    
-    showMessage('图表下载成功', 'success');
-}
-
-// 添加到仪表盘
-function addToDashboard() {
-    if (!currentChartConfig) {
-        showMessage('请先生成图表', 'warning');
-        return;
-    }
-    
-    // 在实际应用中，这里会将图表配置保存到仪表盘
-    showMessage('图表已添加到仪表盘', 'success');
-    
-    // 跳转到仪表盘页面
-    setTimeout(() => {
-        window.location.href = '/dashboard';
-    }, 1000);
-}
-
-// 重置图表配置
-function resetChart() {
-    // 重置图表类型按钮
-    var chartTypeButtons = document.querySelectorAll('.chart-type-btn');
-    for (var i = 0; i < chartTypeButtons.length; i++) {
-        chartTypeButtons[i].classList.remove('btn-primary');
-        chartTypeButtons[i].classList.add('btn-outline-secondary');
-    }
-    
-    // 隐藏配置区域
-    document.getElementById('chartConfig').style.display = 'none';
-    
-    // 清空字段选择
-    document.getElementById('xAxisField').innerHTML = '<option value="">请选择标签字段</option>';
-    document.getElementById('yAxisField').innerHTML = '<option value="">请选择数值字段</option>';
-    
-    // 清空标题
-    document.getElementById('chartTitle').value = '';
-    
-    // 重置图例显示
-    document.getElementById('showLegend').checked = true;
-    
-    // 销毁图表
-    if (currentChart) {
-        currentChart.destroy();
-        currentChart = null;
-    }
-    
-    // 重置图表容器
-    const chartContainer = document.getElementById('chartContainer');
-    chartContainer.innerHTML = `<p class="text-muted text-center">
-        <i class="fas fa-chart-bar fa-3x mb-3"></i><br>
-        请选择图表类型并配置参数以生成图表
-    </p>`;
-    
-    // 禁用下载和添加到仪表盘按钮
-    document.getElementById('downloadChartBtn').disabled = true;
-    document.getElementById('addToDashboardBtn').disabled = true;
-    
-    // 重置配置
-    currentChartConfig = null;
-    
-    showMessage('图表配置已重置', 'info');
+    // 在实际应用中，这里应该将图表配置保存到仪表盘
+    showMessage('添加到仪表盘功能将在后续版本中实现', 'info');
 }
 </script>
 {% endblock %}
