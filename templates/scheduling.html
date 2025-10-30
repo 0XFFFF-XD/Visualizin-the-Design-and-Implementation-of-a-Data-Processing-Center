@@ -11,7 +11,7 @@
 </div>
 
 <div class="row">
-    <div class="col-lg-4 col-md-5 mb-4">
+    <div class="col-lg-5 col-md-6 mb-4">
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0"><i class="fas fa-plus-circle"></i> 创建任务</h5>
@@ -31,6 +31,12 @@
                     </div>
                     
                     <div class="mb-3">
+                        <label class="form-label">输出文件名</label>
+                        <input type="text" class="form-control" id="outputFilename" placeholder="请输入输出文件名">
+                        <div class="form-text">默认为 processed_原文件名</div>
+                    </div>
+                    
+                    <div class="mb-3">
                         <label class="form-label">调度周期</label>
                         <select class="form-select" id="taskSchedule">
                             <option value="once">一次性任务</option>
@@ -47,8 +53,61 @@
                     </div>
                     
                     <div class="mb-3">
+                        <label class="form-label">依赖任务</label>
+                        <select class="form-select" id="taskDependencies" multiple>
+                            <option value="">无依赖</option>
+                        </select>
+                        <div class="form-text">按住Ctrl键可多选依赖任务</div>
+                    </div>
+                    
+                    <div class="mb-3">
                         <label class="form-label">描述</label>
-                        <textarea class="form-control" id="taskDescription" rows="3" placeholder="请输入任务描述"></textarea>
+                        <textarea class="form-control" id="taskDescription" rows="2" placeholder="请输入任务描述"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">数据处理操作</label>
+                        <div class="border rounded p-3">
+                            <div class="d-grid gap-2 mb-3">
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addFilterOperation()">
+                                    <i class="fas fa-filter"></i> 添加过滤
+                                </button>
+                                <button type="button" class="btn btn-outline-success btn-sm" onclick="addSortOperation()">
+                                    <i class="fas fa-sort"></i> 添加排序
+                                </button>
+                                <button type="button" class="btn btn-outline-warning btn-sm" onclick="addGroupOperation()">
+                                    <i class="fas fa-object-group"></i> 添加分组
+                                </button>
+                                <button type="button" class="btn btn-outline-info btn-sm" onclick="addRenameOperation()">
+                                    <i class="fas fa-font"></i> 重命名列
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addDropColumnsOperation()">
+                                    <i class="fas fa-trash"></i> 删除列
+                                </button>
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>操作类型</th>
+                                            <th>参数</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="taskOperationList">
+                                        <tr>
+                                            <td colspan="4" class="text-center">暂无操作</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="clearOperations()">
+                                <i class="fas fa-trash"></i> 清空操作
+                            </button>
+                        </div>
                     </div>
                     
                     <button type="submit" class="btn btn-primary w-100">
@@ -59,7 +118,7 @@
         </div>
     </div>
     
-    <div class="col-lg-8 col-md-7 mb-4">
+    <div class="col-lg-7 col-md-6 mb-4">
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0"><i class="fas fa-tasks"></i> 任务列表</h5>
@@ -117,10 +176,202 @@
         </div>
     </div>
 </div>
+
+<!-- 过滤操作模态框 -->
+<div class="modal fade" id="taskFilterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">添加过滤操作</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">选择列</label>
+                    <select class="form-select filter-column"></select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">条件</label>
+                    <select class="form-select filter-condition">
+                        <option value="equal">等于</option>
+                        <option value="not_equal">不等于</option>
+                        <option value="greater">大于</option>
+                        <option value="less">小于</option>
+                        <option value="contains">包含</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">值</label>
+                    <input type="text" class="form-control filter-value">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="confirmTaskFilterOperation()">
+                    <i class="fas fa-plus"></i> 添加
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 排序操作模态框 -->
+<div class="modal fade" id="taskSortModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">添加排序操作</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">选择列</label>
+                    <select class="form-select sort-column"></select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">排序方式</label>
+                    <select class="form-select sort-ascending">
+                        <option value="true">升序</option>
+                        <option value="false">降序</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="confirmTaskSortOperation()">
+                    <i class="fas fa-plus"></i> 添加
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 分组操作模态框 -->
+<div class="modal fade" id="taskGroupModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">添加分组操作</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">选择列</label>
+                    <select class="form-select group-column"></select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">聚合函数</label>
+                    <select class="form-select group-agg-func">
+                        <option value="sum">求和</option>
+                        <option value="mean">平均值</option>
+                        <option value="count">计数</option>
+                        <option value="min">最小值</option>
+                        <option value="max">最大值</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="confirmTaskGroupOperation()">
+                    <i class="fas fa-plus"></i> 添加
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 重命名操作模态框 -->
+<div class="modal fade" id="taskRenameModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">添加重命名操作</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">选择列</label>
+                    <select class="form-select rename-column"></select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">新列名</label>
+                    <input type="text" class="form-control rename-new-name">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="confirmTaskRenameOperation()">
+                    <i class="fas fa-plus"></i> 添加
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 删除列操作模态框 -->
+<div class="modal fade" id="taskDropColumnsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">添加删除列操作</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">选择要删除的列</label>
+                    <select class="form-select drop-columns" multiple size="8"></select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="confirmTaskDropColumnsOperation()">
+                    <i class="fas fa-plus"></i> 添加
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
+// 任务操作列表
+let taskOperations = [];
+
+// 显示消息函数
+function showMessage(message, type) {
+    // 创建或获取消息容器
+    let alertContainer = document.getElementById('alertContainer');
+    if (!alertContainer) {
+        alertContainer = document.createElement('div');
+        alertContainer.id = 'alertContainer';
+        alertContainer.style.position = 'fixed';
+        alertContainer.style.top = '20px';
+        alertContainer.style.right = '20px';
+        alertContainer.style.zIndex = '1000';
+        document.body.appendChild(alertContainer);
+    }
+    
+    // 创建消息元素
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.role = 'alert';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // 添加到容器
+    alertContainer.appendChild(alertDiv);
+    
+    // 3秒后自动消失
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.parentNode.removeChild(alertDiv);
+        }
+    }, 3000);
+}
+
 // DOM加载完成后初始化
 document.addEventListener('DOMContentLoaded', function() {
     // 加载数据
@@ -130,6 +381,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 绑定事件
     document.getElementById('taskForm').addEventListener('submit', createTask);
+    document.getElementById('taskDataFile').addEventListener('change', loadTaskDataColumns);
 });
 
 // 加载数据源列表
@@ -137,10 +389,15 @@ function loadDataSourceList() {
     const selectElement = document.getElementById('taskDataFile');
     selectElement.innerHTML = '<option value="">加载中...</option>';
     
-    axios.get('/api/data_sources')
-        .then(function(response) {
-            const sources = response.data;
-            
+    // 使用fetch API替代axios以避免潜在的库问题
+    fetch('/api/data_sources')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('网络响应错误: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(sources => {
             if (!sources || sources.length === 0) {
                 selectElement.innerHTML = '<option value="">暂无数据源</option>';
                 return;
@@ -152,11 +409,342 @@ function loadDataSourceList() {
             });
             selectElement.innerHTML = selectHtml;
         })
-        .catch(function(error) {
+        .catch(error => {
             console.error('Error loading data sources:', error);
             selectElement.innerHTML = '<option value="">加载失败</option>';
             showMessage('加载数据源失败: ' + error.message, 'danger');
         });
+}
+
+// 加载任务数据列信息
+function loadTaskDataColumns() {
+    const filename = document.getElementById('taskDataFile').value;
+    if (!filename) return;
+    
+    fetch(`/api/data/${filename}/preview`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('网络响应错误: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.error) {
+                showMessage('加载数据列信息失败: ' + data.error, 'danger');
+                return;
+            }
+            
+            // 更新所有操作模态框中的列选项
+            updateColumnOptions(data.columns);
+        })
+        .catch(error => {
+            console.error('加载数据列信息失败:', error);
+            showMessage('加载数据列信息失败: ' + error.message, 'danger');
+        });
+}
+
+// 更新列选项
+function updateColumnOptions(columns) {
+    // 更新所有模态框中的列选项
+    document.querySelectorAll('.filter-column, .sort-column, .group-column, .rename-column').forEach(function(select) {
+        let optionsHtml = '<option value="">请选择列</option>';
+        columns.forEach(function(column) {
+            optionsHtml += `<option value="${column}">${column}</option>`;
+        });
+        select.innerHTML = optionsHtml;
+    });
+    
+    // 更新删除列选项
+    const dropSelect = document.querySelector('.drop-columns');
+    if (dropSelect) {
+        let optionsHtml = '';
+        columns.forEach(function(column) {
+            optionsHtml += `<option value="${column}">${column}</option>`;
+        });
+        dropSelect.innerHTML = optionsHtml;
+    }
+}
+
+// 添加过滤操作
+function addFilterOperation() {
+    const filename = document.getElementById('taskDataFile').value;
+    if (!filename) {
+        showMessage('请先选择数据文件', 'warning');
+        return;
+    }
+    
+    const modal = new bootstrap.Modal(document.getElementById('taskFilterModal'));
+    modal.show();
+}
+
+// 确认添加过滤操作
+function confirmTaskFilterOperation() {
+    const column = document.querySelector('#taskFilterModal .filter-column').value;
+    const condition = document.querySelector('#taskFilterModal .filter-condition').value;
+    const value = document.querySelector('#taskFilterModal .filter-value').value;
+    
+    if (!column) {
+        showMessage('请选择列', 'warning');
+        return;
+    }
+    
+    taskOperations.push({
+        type: 'filter',
+        column: column,
+        condition: condition,
+        value: value
+    });
+    
+    updateTaskOperationList();
+    
+    // 关闭模态框
+    const modal = bootstrap.Modal.getInstance(document.getElementById('taskFilterModal'));
+    modal.hide();
+    
+    showMessage('已添加过滤操作', 'success');
+}
+
+// 添加排序操作
+function addSortOperation() {
+    const filename = document.getElementById('taskDataFile').value;
+    if (!filename) {
+        showMessage('请先选择数据文件', 'warning');
+        return;
+    }
+    
+    const modal = new bootstrap.Modal(document.getElementById('taskSortModal'));
+    modal.show();
+}
+
+// 确认添加排序操作
+function confirmTaskSortOperation() {
+    const column = document.querySelector('#taskSortModal .sort-column').value;
+    const ascending = document.querySelector('#taskSortModal .sort-ascending').value === 'true';
+    
+    if (!column) {
+        showMessage('请选择列', 'warning');
+        return;
+    }
+    
+    taskOperations.push({
+        type: 'sort',
+        column: column,
+        ascending: ascending
+    });
+    
+    updateTaskOperationList();
+    
+    // 关闭模态框
+    const modal = bootstrap.Modal.getInstance(document.getElementById('taskSortModal'));
+    modal.hide();
+    
+    showMessage('已添加排序操作', 'success');
+}
+
+// 添加分组操作
+function addGroupOperation() {
+    const filename = document.getElementById('taskDataFile').value;
+    if (!filename) {
+        showMessage('请先选择数据文件', 'warning');
+        return;
+    }
+    
+    const modal = new bootstrap.Modal(document.getElementById('taskGroupModal'));
+    modal.show();
+}
+
+// 确认添加分组操作
+function confirmTaskGroupOperation() {
+    const column = document.querySelector('#taskGroupModal .group-column').value;
+    const aggFunc = document.querySelector('#taskGroupModal .group-agg-func').value;
+    
+    if (!column) {
+        showMessage('请选择列', 'warning');
+        return;
+    }
+    
+    taskOperations.push({
+        type: 'group',
+        column: column,
+        agg_func: aggFunc
+    });
+    
+    updateTaskOperationList();
+    
+    // 关闭模态框
+    const modal = bootstrap.Modal.getInstance(document.getElementById('taskGroupModal'));
+    modal.hide();
+    
+    showMessage('已添加分组操作', 'success');
+}
+
+// 添加重命名操作
+function addRenameOperation() {
+    const filename = document.getElementById('taskDataFile').value;
+    if (!filename) {
+        showMessage('请先选择数据文件', 'warning');
+        return;
+    }
+    
+    const modal = new bootstrap.Modal(document.getElementById('taskRenameModal'));
+    modal.show();
+}
+
+// 确认添加重命名操作
+function confirmTaskRenameOperation() {
+    const column = document.querySelector('#taskRenameModal .rename-column').value;
+    const newName = document.querySelector('#taskRenameModal .rename-new-name').value;
+    
+    if (!column || !newName) {
+        showMessage('请选择列并输入新列名', 'warning');
+        return;
+    }
+    
+    taskOperations.push({
+        type: 'rename',
+        column: column,
+        new_name: newName
+    });
+    
+    updateTaskOperationList();
+    
+    // 关闭模态框
+    const modal = bootstrap.Modal.getInstance(document.getElementById('taskRenameModal'));
+    modal.hide();
+    
+    showMessage('已添加重命名操作', 'success');
+}
+
+// 添加删除列操作
+function addDropColumnsOperation() {
+    const filename = document.getElementById('taskDataFile').value;
+    if (!filename) {
+        showMessage('请先选择数据文件', 'warning');
+        return;
+    }
+    
+    const modal = new bootstrap.Modal(document.getElementById('taskDropColumnsModal'));
+    modal.show();
+}
+
+// 确认添加删除列操作
+function confirmTaskDropColumnsOperation() {
+    const selectedOptions = Array.from(document.querySelector('#taskDropColumnsModal .drop-columns').selectedOptions);
+    const columns = selectedOptions.map(option => option.value);
+    
+    if (columns.length === 0) {
+        showMessage('请至少选择一列', 'warning');
+        return;
+    }
+    
+    taskOperations.push({
+        type: 'drop_columns',
+        columns: columns
+    });
+    
+    updateTaskOperationList();
+    
+    // 关闭模态框
+    const modal = bootstrap.Modal.getInstance(document.getElementById('taskDropColumnsModal'));
+    modal.hide();
+    
+    showMessage('已添加删除列操作', 'success');
+}
+
+// 更新任务操作列表
+function updateTaskOperationList() {
+    const tbody = document.getElementById('taskOperationList');
+    
+    if (taskOperations.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center">暂无操作</td></tr>';
+        return;
+    }
+    
+    let html = '';
+    taskOperations.forEach(function(op, index) {
+        let opType = '';
+        let opParams = '';
+        
+        switch(op.type) {
+            case 'filter':
+                opType = '过滤';
+                opParams = `${op.column} ${getConditionText(op.condition)} ${op.value}`;
+                break;
+            case 'sort':
+                opType = '排序';
+                opParams = `${op.column} (${op.ascending ? '升序' : '降序'})`;
+                break;
+            case 'group':
+                opType = '分组';
+                opParams = `${op.column} (${getAggFuncText(op.agg_func)})`;
+                break;
+            case 'rename':
+                opType = '重命名';
+                opParams = `${op.column} → ${op.new_name}`;
+                break;
+            case 'drop_columns':
+                opType = '删除列';
+                opParams = op.columns.join(', ');
+                break;
+        }
+        
+        html += `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${opType}</td>
+                <td>${opParams}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-danger" onclick="removeTaskOperation(${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    tbody.innerHTML = html;
+}
+
+// 获取条件文本
+function getConditionText(condition) {
+    const conditions = {
+        'equal': '等于',
+        'not_equal': '不等于',
+        'greater': '大于',
+        'less': '小于',
+        'contains': '包含'
+    };
+    return conditions[condition] || condition;
+}
+
+// 获取聚合函数文本
+function getAggFuncText(aggFunc) {
+    const aggFuncs = {
+        'sum': '求和',
+        'mean': '平均值',
+        'count': '计数',
+        'min': '最小值',
+        'max': '最大值'
+    };
+    return aggFuncs[aggFunc] || aggFunc;
+}
+
+// 删除任务操作
+function removeTaskOperation(index) {
+    taskOperations.splice(index, 1);
+    updateTaskOperationList();
+    showMessage('已删除操作', 'success');
+}
+
+// 清空操作
+function clearOperations() {
+    if (taskOperations.length === 0) return;
+    
+    if (confirm('确定要清空所有操作吗？')) {
+        taskOperations = [];
+        updateTaskOperationList();
+        showMessage('已清空所有操作', 'success');
+    }
 }
 
 // 创建任务
@@ -168,6 +756,11 @@ function createTask(e) {
     const schedule = document.getElementById('taskSchedule').value;
     const scheduleTime = document.getElementById('taskScheduleTime').value;
     const description = document.getElementById('taskDescription').value;
+    const outputFilename = document.getElementById('outputFilename').value;
+    const dependenciesSelect = document.getElementById('taskDependencies');
+    const dependencies = Array.from(dependenciesSelect.selectedOptions)
+                              .filter(option => option.value)
+                              .map(option => option.value);
     
     if (!name || !dataFile || !schedule) {
         showMessage('请填写所有必填项', 'warning');
@@ -180,32 +773,60 @@ function createTask(e) {
         schedule: schedule,
         scheduleTime: scheduleTime,
         description: description,
-        operations: []
+        operations: taskOperations,
+        outputFilename: outputFilename,
+        dependencies: dependencies
     };
     
-    axios.post('/api/tasks', taskData)
-        .then(function(response) {
-            showMessage('任务创建成功', 'success');
-            document.getElementById('taskForm').reset();
-            loadTasks();
-        })
-        .catch(function(error) {
-            showMessage('任务创建失败: ' + error.message, 'danger');
-        });
+    fetch('/api/tasks', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(taskData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('网络响应错误: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(response => {
+        showMessage('任务创建成功', 'success');
+        document.getElementById('taskForm').reset();
+        taskOperations = [];
+        updateTaskOperationList();
+        loadTasks();
+    })
+    .catch(error => {
+        showMessage('任务创建失败: ' + error.message, 'danger');
+    });
 }
 
 // 加载任务列表
 function loadTasks() {
-    axios.get('/api/tasks')
-        .then(function(response) {
-            const tasks = response.data;
-            const tbody = document.getElementById('taskList');
-            
+    const taskListElement = document.getElementById('taskList');
+    const dependenciesSelect = document.getElementById('taskDependencies');
+    
+    // 设置加载状态
+    taskListElement.innerHTML = '<tr><td colspan="5" class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">加载中...</span></div></td></tr>';
+    dependenciesSelect.innerHTML = '<option value="">加载中...</option>';
+    
+    fetch('/api/tasks')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('网络响应错误: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(tasks => {
             if (tasks.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center">暂无任务</td></tr>';
+                taskListElement.innerHTML = '<tr><td colspan="5" class="text-center">暂无任务</td></tr>';
+                dependenciesSelect.innerHTML = '<option value="">暂无任务</option>';
                 return;
             }
             
+            // 更新任务列表
             let html = '';
             tasks.forEach(function(task) {
                 html += `
@@ -217,10 +838,10 @@ function loadTasks() {
                             <span class="badge ${getStatusBadgeClass(task.status)}">${getStatusText(task.status)}</span>
                         </td>
                         <td>
-                            <button class="btn btn-sm btn-outline-primary" onclick="runTask(${task.id})">
+                            <button class="btn btn-sm btn-outline-primary" onclick="runTask('${task.id}')">
                                 <i class="fas fa-play"></i> 执行
                             </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteTask(${task.id})">
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteTask('${task.id}')">
                                 <i class="fas fa-trash"></i> 删除
                             </button>
                         </td>
@@ -228,11 +849,20 @@ function loadTasks() {
                 `;
             });
             
-            tbody.innerHTML = html;
+            taskListElement.innerHTML = html;
+            
+            // 更新依赖任务列表
+            let depHtml = '<option value="">无依赖</option>';
+            tasks.forEach(function(task) {
+                depHtml += `<option value="${task.id}">${task.name}</option>`;
+            });
+            dependenciesSelect.innerHTML = depHtml;
         })
-        .catch(function(error) {
+        .catch(error => {
             console.error('加载任务失败:', error);
-            document.getElementById('taskList').innerHTML = '<tr><td colspan="5" class="text-center text-danger">加载失败: ' + error.message + '</td></tr>';
+            taskListElement.innerHTML = '<tr><td colspan="5" class="text-center text-danger">加载失败: ' + error.message + '</td></tr>';
+            dependenciesSelect.innerHTML = '<option value="">加载失败</option>';
+            showMessage('加载任务失败: ' + error.message, 'danger');
         });
 }
 
@@ -272,35 +902,56 @@ function getStatusBadgeClass(status) {
 
 // 运行任务
 function runTask(taskId) {
-    axios.post(`/api/tasks/${taskId}/run`)
-        .then(function(response) {
-            showMessage('任务开始执行', 'success');
-            loadTasks();
-        })
-        .catch(function(error) {
-            showMessage('任务执行失败: ' + error.message, 'danger');
-        });
+    fetch(`/api/tasks/${taskId}/run`, {
+        method: 'POST'
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {throw new Error(err.error);});
+        }
+        return response.json();
+    })
+    .then(response => {
+        showMessage('任务开始执行', 'success');
+        loadTasks();
+    })
+    .catch(error => {
+        showMessage('任务执行失败: ' + error.message, 'danger');
+    });
 }
 
 // 删除任务
 function deleteTask(taskId) {
     if (confirm('确定要删除此任务吗？')) {
-        axios.delete(`/api/tasks/${taskId}`)
-            .then(function(response) {
-                showMessage('任务已删除', 'success');
-                loadTasks();
-            })
-            .catch(function(error) {
-                showMessage('任务删除失败: ' + error.message, 'danger');
-            });
+        fetch(`/api/tasks/${taskId}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('网络响应错误: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(response => {
+            showMessage('任务已删除', 'success');
+            loadTasks();
+        })
+        .catch(error => {
+            showMessage('任务删除失败: ' + error.message, 'danger');
+        });
     }
 }
 
 // 加载任务日志
 function loadTaskLogs() {
-    axios.get('/api/task_logs')
-        .then(function(response) {
-            const logs = response.data;
+    fetch('/api/task_logs')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('网络响应错误: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(logs => {
             const tbody = document.getElementById('logList');
             
             if (logs.length === 0) {
@@ -325,8 +976,9 @@ function loadTaskLogs() {
             
             tbody.innerHTML = html;
         })
-        .catch(function(error) {
+        .catch(error => {
             console.error('加载日志失败:', error);
+            showMessage('加载日志失败: ' + error.message, 'danger');
         });
 }
 
